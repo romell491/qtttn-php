@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة النشر العربية</title>
+    <!-- IBM Plex Sans Arabic font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            line-height: 1.6;
+            color: #000;
+            background-color: #fff;
+            padding: 0;
+            margin: 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        h1 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: #444;
+            letter-spacing: 0.5px;
+        }
+        
+        .container {
+            padding: 1rem;
+        }
+        
+        .content-form {
+            padding: 1rem 0;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 0.8rem 0;
+            border: none;
+            border-bottom: 1px solid #eee;
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            font-size: 1rem;
+            background: transparent;
+        }
+        
+        input[type="text"]::placeholder, textarea::placeholder {
+            color: #aaa;
+        }
+        
+        textarea {
+            min-height: 250px;
+            resize: vertical;
+        }
+        
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-bottom-color: #000;
+        }
+        
+        .publish-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-top: 3rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #000;
+            color: white;
+            padding: 0.7rem 1.4rem;
+            border: none;
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 400;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #333;
+        }
+        
+        .timer-icon {
+            margin-left: 1rem;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            position: relative;
+        }
+        
+        .timer-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: #000;
+            stroke-width: 2;
+            transition: stroke 0.3s;
+        }
+        
+        .timer-icon:hover svg {
+            stroke: #555;
+        }
+        
+        .timer-dropdown {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 150px;
+            background: white;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 10;
+        }
+        
+        .timer-dropdown.show {
+            display: block;
+        }
+        
+        .timer-option {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .timer-option:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .timer-option.selected {
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .timer-option.selected::after {
+            content: "✓";
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .success-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #000;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 100;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #999;
+            font-size: 0.8rem;
+            border-top: 1px solid #f0f0f0;
+            margin-top: 3rem;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>منصة النشر العربية</h1>
+    </header>
+    
+    <div class="container">
+        <div class="success-message" id="success-message">
+            تم نشر المحتوى بنجاح! تم نسخ الرابط
+        </div>
+        
+        <div class="content-form">
+            <form id="content-form" action="submit.php" method="post">
+                <div class="form-group">
+                    <input type="text" id="title" name="title" placeholder="العنوان">
+                </div>
+                
+                <div class="form-group">
+                    <input type="text" id="author" name="author" placeholder="الكاتب">
+                </div>
+                
+                <div class="form-group">
+                    <textarea id="content" name="content" required placeholder="اكتب محتواك هنا..."></textarea>
+                    <div class="error" id="content-error"></div>
+                </div>
+                
+                <input type="hidden" id="expiration" name="expiration" value="forever">
+                <input type="hidden" name="csrf_token" id="csrf_token" value="">
+                
+                <div class="publish-container">
+                    <div class="timer-icon" id="timer-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <div class="timer-dropdown" id="timer-dropdown">
+                            <div class="timer-option" data-value="1_hour">ساعة واحدة</div>
+                            <div class="timer-option" data-value="1_day">يوم واحد</div>
+                            <div class="timer-option" data-value="1_week">أسبوع واحد</div>
+                            <div class="timer-option" data-value="1_month">شهر واحد</div>
+                            <div class="timer-option" data-value="6_months">6 أشهر</div>
+                            <div class="timer-option" data-value="1_year">سنة واحدة</div>
+                            <div class="timer-option selected" data-value="forever">بلا انتهاء</div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">نشر</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <footer>
+        <p>منصة النشر العربية</p>
+    </footer>
+    
+    <script>
+        // Timer dropdown toggle
+        document.getElementById('timer-icon').addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('timer-dropdown').classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function() {
+            document.getElementById('timer-dropdown').classList.remove('show');
+        });
+        
+        // Timer option selection
+        document.querySelectorAll('.timer-option').forEach(function(option) {
+            option.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                // Remove selected class from all options
+                document.querySelectorAll('.timer-option').forEach(function(opt) {
+                    opt.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                
+                // Update hidden input value
+                document.getElementById('expiration').value = this.getAttribute('data-value');
+                
+                // Close dropdown
+                document.getElementById('timer-dropdown').classList.remove('show');
+            });
+        });
+        
+        // Get CSRF token
+        fetch('get_token.php')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('csrf_token').value = data.token;
+            });
+        
+        // Form submission
+        document.getElementById('content-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const content = document.getElementById('content').value;
+            const contentError = document.getElementById('content-error');
+            
+            // Validate content
+            if (!content || content.trim().length < 10) {
+                contentError.textContent = 'المحتوى قصير جدًا، يجب أن يكون 10 أحرف على الأقل';
+                return;
+            }
+            
+            if (content.length > 50000) {
+                contentError.textContent = 'المحتوى طويل جدًا، يجب أن يكون أقل من 50000 حرف';
+                return;
+            }
+            
+            contentError.textContent = '';
+            
+            // Submit form
+            const formData = new FormData(this);
+            
+            fetch('submit.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    const successMessage = document.getElementById('success-message');
+                    successMessage.style.display = 'block';
+                    
+                    // Copy link to clipboard
+                    navigator.clipboard.writeText(data.url).then(() => {
+                        // Scroll to top to show success message
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        
+                        // Redirect after 2 seconds
+                        setTimeout(() => {
+                            window.location.href = data.url;
+                        }, 2000);
+                    });
+                    
+                    // Reset form
+                    document.getElementById('content-form').reset();
+                } else {
+                    // Show error message
+                    if (data.errors.content) {
+                        contentError.textContent = data.errors.content;
+                    }
+                    
+                    if (data.message) {
+                        alert(data.message);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ أثناء نشر المحتوى، يرجى المحاولة مرة أخرى');
+            });
+        });
+    </script>
+</body>
+</html>
