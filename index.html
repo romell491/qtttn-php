@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة النشر العربية</title>
+    <title>منصة قطن | اكتب وانشر</title>
     <!-- IBM Plex Sans Arabic font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -166,17 +166,38 @@
         }
         
         .success-message {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
             background-color: #000;
             color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
             display: none;
-            z-index: 100;
+        }
+        
+        .url-container {
+            margin-top: 15px;
+        }
+        
+        .url-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #eee;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.9);
+            color: #000;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .action-btn {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            cursor: pointer;
         }
         
         footer {
@@ -188,6 +209,27 @@
             margin-top: 3rem;
         }
         
+        #sponsor-footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #999;
+            font-size: 0.9rem;
+            border-top: 1px solid #f0f0f0;
+            margin-top: 3rem;
+            line-height: 1.8;
+        }
+        
+        #sponsor-links a {
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        #sponsor-links a:hover {
+            color: #000;
+        }
+        
         @media (max-width: 600px) {
             .container {
                 padding: 1rem;
@@ -197,12 +239,12 @@
 </head>
 <body>
     <header>
-        <h1>منصة النشر العربية</h1>
+        <h1>منصة قطن | اكتب وانشر</h1>
     </header>
     
     <div class="container">
         <div class="success-message" id="success-message">
-            تم نشر المحتوى بنجاح! تم نسخ الرابط
+            تم نشر المحتوى بنجاح!
         </div>
         
         <div class="content-form">
@@ -245,9 +287,47 @@
         </div>
     </div>
     
-    <footer>
-        <p>منصة النشر العربية</p>
-    </footer>
+    <p id="sponsor-footer">
+        الأداة مجانا بالكامل وبدون إعلانات مزعجة برعاية الرائعين:
+        <span id="sponsor-links"></span>
+    </p>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const sponsorKey = "kwakeb_sponsors";
+
+            // If saved in sessionStorage, use it
+            const cachedSponsors = sessionStorage.getItem(sponsorKey);
+            if (cachedSponsors) {
+                document.getElementById("sponsor-links").innerHTML = cachedSponsors;
+                return;
+            }
+
+            // Otherwise, generate new random sponsors
+            const baseSponsors = [
+                { name: " زد", url: "https://zid.link/4hTPipU" },
+                { name: "كناري", url: "https://knaree.com/" },
+                { name: "رمز", url: "https://rmmmz.com" },
+                { name: "خمسات", url: "https://khamsat.com/?r=56526" }
+            ];
+
+            const conflictGroup = [
+                { name: "وسيط شراء من النت", url: "https://wasetshera.com?myad=56761" },
+                { name: "الشاري", url: "https://alshary.com?myad=58260" }
+            ];
+
+            const selectedConflict = conflictGroup[Math.floor(Math.random() * conflictGroup.length)];
+            const shuffledBase = baseSponsors.sort(() => 0.5 - Math.random()).slice(0, 2);
+            const finalSponsors = [selectedConflict, ...shuffledBase].sort(() => 0.5 - Math.random());
+
+            const linksHtml = finalSponsors.map(s =>
+                `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.name}</a>`
+            ).join(" + ");
+
+            document.getElementById("sponsor-links").innerHTML = linksHtml;
+            sessionStorage.setItem(sponsorKey, linksHtml);
+        });
+    </script>
     
     <script>
         // Timer dropdown toggle
@@ -297,13 +377,13 @@
             const contentError = document.getElementById('content-error');
             
             // Validate content
-            if (!content || content.trim().length < 10) {
-                contentError.textContent = 'المحتوى قصير جدًا، يجب أن يكون 10 أحرف على الأقل';
+            if (!content || content.trim().length < 1) {
+                contentError.textContent = 'المحتوى قصير جدًا، يجب أن يكون حرف واحد على الأقل.';
                 return;
             }
             
             if (content.length > 50000) {
-                contentError.textContent = 'المحتوى طويل جدًا، يجب أن يكون أقل من 50000 حرف';
+                contentError.textContent = 'المحتوى طويل جدًا، الحد الأقصى هو ٥٠٬٠٠٠ حرف. للتجاوز يُرجى التواصل معنا على واتساب وشرح الاستخدام: +966556361500';
                 return;
             }
             
@@ -323,22 +403,57 @@
                     const successMessage = document.getElementById('success-message');
                     successMessage.style.display = 'block';
                     
-                    // Copy link to clipboard
-                    navigator.clipboard.writeText(data.url).then(() => {
-                        // Scroll to top to show success message
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Create URL display with iOS-compatible copy functionality
+                    if (!document.getElementById('url-container')) {
+                        const urlContainer = document.createElement('div');
+                        urlContainer.id = 'url-container';
+                        urlContainer.className = 'url-container';
                         
-                        // Redirect after 2 seconds
-                        setTimeout(() => {
+                        // Create elements
+                        urlContainer.innerHTML = `
+                            <input type="text" class="url-input" value="${data.url}" readonly id="url-input">
+                            <div class="button-container">
+                                <button id="copy-button" class="action-btn">نسخ الرابط</button>
+                                <button id="visit-button" class="action-btn">الانتقال للصفحة</button>
+                            </div>
+                        `;
+                        
+                        // Add to DOM
+                        successMessage.appendChild(urlContainer);
+                        
+                        // Add click handlers
+                        document.getElementById('copy-button').addEventListener('click', function() {
+                            const urlInput = document.getElementById('url-input');
+                            
+                            // Select the text
+                            urlInput.select();
+                            urlInput.setSelectionRange(0, 99999); // For mobile
+                            
+                            // iOS friendly copy (execCommand)
+                            const successful = document.execCommand('copy');
+                            
+                            // Provide feedback
+                            if (successful) {
+                                this.textContent = 'تم النسخ!';
+                            } else {
+                                // If execCommand fails, show instructions
+                                alert('يرجى نسخ الرابط يدويًا: اضغط مطولًا على النص وحدد "نسخ"');
+                            }
+                        });
+                        
+                        document.getElementById('visit-button').addEventListener('click', function() {
                             window.location.href = data.url;
-                        }, 2000);
-                    });
+                        });
+                    }
+                    
+                    // Scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                     
                     // Reset form
                     document.getElementById('content-form').reset();
                 } else {
                     // Show error message
-                    if (data.errors.content) {
+                    if (data.errors && data.errors.content) {
                         contentError.textContent = data.errors.content;
                     }
                     

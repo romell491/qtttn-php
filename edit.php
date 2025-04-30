@@ -15,34 +15,24 @@ $response = [
 
 // Function to check if edit is allowed
 function canEditPost($post, $token) {
-   // return true;
     // Check if post exists
     if (!$post) {
         return false;
     }
     
     // Check if edit token matches
-   if ($post['edit_token'] !== $token) {
-       return false;
-   }
- //  echo $post['expires_at'];
-//   exit;
-//   return true;
+    if ($post['edit_token'] !== $token) {
+        return false;
+    }
     
     // Check if edit period has expired
-    if($post['expires_at'] != ''){
-    $editExpires = new DateTime($post['expires_at']);
+    $editExpires = new DateTime($post['edit_expires_at']);
     $now = new DateTime();
     
-    
-    $editExpires = strtotime($editExpires->format('Y-m-d H:i:s'));
-    $now = strtotime($now->format('Y-m-d H:i:s')); 
-    
-    
-   if ($now > $editExpires) {
+    if ($now > $editExpires) {
         return false;
-   }
-    }  
+    }
+    
     return true;
 }
 
@@ -156,28 +146,17 @@ if (!canEditPost($post, $token)) {
 }
 
 // Calculate remaining edit time
-if($post['expires_at'] !=  ''){
-$editExpires = new DateTime($post['expires_at']);
+$editExpires = new DateTime($post['edit_expires_at']);
 $now = new DateTime();
-    $editExpires = strtotime($editExpires->format('Y-m-d H:i:s'));
-    $now = strtotime($now->format('Y-m-d H:i:s')); 
-
-// $timeLeft = $now->diff($editExpires);
-
-$minutesLeft = $editExpires - $now;
-
-$minutesLeft = round($minutesLeft / 60);
-
-// $minutesLeft = ($timeLeft->h * 60) + $timeLeft->i;
-}else
-$minutesLeft = 10000000;
+$timeLeft = $now->diff($editExpires);
+$minutesLeft = ($timeLeft->h * 60) + $timeLeft->i;
 ?>
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تعديل المنشور - منصة النشر العربية</title>
+    <title>تعديل المنشور - منصة قطن | اكتب وانشر</title>
     <!-- IBM Plex Sans Arabic font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -315,13 +294,25 @@ $minutesLeft = 10000000;
             margin-top: 0.5rem;
         }
         
-        footer {
+        #sponsor-footer {
             text-align: center;
             padding: 2rem 1rem;
             color: #999;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             border-top: 1px solid #f0f0f0;
             margin-top: 3rem;
+            line-height: 1.8;
+        }
+        
+        #sponsor-links a {
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        #sponsor-links a:hover {
+            color: #000;
         }
         
         @media (max-width: 600px) {
@@ -374,9 +365,47 @@ $minutesLeft = 10000000;
         </div>
     </div>
     
-    <footer>
-        <p>منصة النشر العربية</p>
-    </footer>
+    <p id="sponsor-footer">
+        الأداة مجانا بالكامل وبدون إعلانات مزعجة برعاية الرائعين:
+        <span id="sponsor-links"></span>
+    </p>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const sponsorKey = "kwakeb_sponsors";
+
+            // If saved in sessionStorage, use it
+            const cachedSponsors = sessionStorage.getItem(sponsorKey);
+            if (cachedSponsors) {
+                document.getElementById("sponsor-links").innerHTML = cachedSponsors;
+                return;
+            }
+
+            // Otherwise, generate new random sponsors
+            const baseSponsors = [
+                { name: " زد", url: "https://zid.link/4hTPipU" },
+                { name: "كناري", url: "https://knaree.com/" },
+                { name: "رمز", url: "https://rmmmz.com" },
+                { name: "خمسات", url: "https://khamsat.com/?r=56526" }
+            ];
+
+            const conflictGroup = [
+                { name: "وسيط شراء من النت", url: "https://wasetshera.com?myad=56761" },
+                { name: "الشاري", url: "https://alshary.com?myad=58260" }
+            ];
+
+            const selectedConflict = conflictGroup[Math.floor(Math.random() * conflictGroup.length)];
+            const shuffledBase = baseSponsors.sort(() => 0.5 - Math.random()).slice(0, 2);
+            const finalSponsors = [selectedConflict, ...shuffledBase].sort(() => 0.5 - Math.random());
+
+            const linksHtml = finalSponsors.map(s =>
+                `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.name}</a>`
+            ).join(" + ");
+
+            document.getElementById("sponsor-links").innerHTML = linksHtml;
+            sessionStorage.setItem(sponsorKey, linksHtml);
+        });
+    </script>
     
     <script>
         // Get CSRF token
@@ -404,13 +433,13 @@ $minutesLeft = 10000000;
             contentError.textContent = '';
             
             // Validate content
-            if (!content || content.trim().length < 10) {
-                contentError.textContent = 'المحتوى قصير جدًا، يجب أن يكون 10 أحرف على الأقل';
+            if (!content || content.trim().length < 1) {
+                contentError.textContent = 'المحتوى قصير جدًا، يجب أن يكون حرف واحد على الأقل.';
                 return;
             }
             
             if (content.length > 50000) {
-                contentError.textContent = 'المحتوى طويل جدًا، يجب أن يكون أقل من 50000 حرف';
+                contentError.textContent = 'المحتوى طويل جدًا، الحد الأقصى هو ٥٠٬٠٠٠ حرف. للتجاوز يُرجى التواصل معنا على واتساب وشرح الاستخدام: +966556361500';
                 return;
             }
             
@@ -430,6 +459,23 @@ $minutesLeft = 10000000;
                     
                     // Scroll to top to show success message
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    // Create a URL display for redirection
+                    if (!document.getElementById('url-container')) {
+                        const urlContainer = document.createElement('div');
+                        urlContainer.id = 'url-container';
+                        urlContainer.style.marginTop = '10px';
+                        
+                        urlContainer.innerHTML = `
+                            <button id="visit-page" style="background: #000; color: white; border: none; padding: 8px 15px; margin-top: 10px; width: 100%;">الانتقال للصفحة</button>
+                        `;
+                        
+                        successMessage.appendChild(urlContainer);
+                        
+                        document.getElementById('visit-page').addEventListener('click', function() {
+                            window.location.href = data.url;
+                        });
+                    }
                     
                     // Redirect after 2 seconds
                     setTimeout(() => {

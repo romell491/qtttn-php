@@ -177,7 +177,6 @@ function formatArabicDate($timestamp) {
 }
 */
 
-
 /**
  * Format date in Arabic
  * @param string $timestamp Timestamp
@@ -198,11 +197,11 @@ function formatArabicDate($timestamp) {
     $day = $date->format('d');
     $month = $arabicMonths[(int)$date->format('n')];
     $year = $date->format('Y');
-    $time = $date->format('H:i');
     
-    // Return formatted date string
-    return $day . ' ' . $month . ' ' . $year . ' ' . $time;
+    // Return formatted date string without time
+    return $day . ' ' . $month . ' ' . $year;
 }
+
 
 
 /**

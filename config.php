@@ -18,12 +18,12 @@ define('BASE_URL', 'https://shajarat.com/qtttn3/');  // Change to your domain
 define('CSRF_SECRET', 'change_this_to_a_random_string');  // Change this to a random string
 define('ADMIN_USERNAME', 'admin');  // Change admin username
 define('ADMIN_PASSWORD', 'ChangeThisPassword');  // Change admin password
-define('SESSION_NAME', 'admin_session1');
+define('SESSION_NAME', 'admin_session');
 
 // Content settings
 define('MAX_TITLE_LENGTH', 200);
 define('MAX_AUTHOR_LENGTH', 100);
-define('MIN_CONTENT_LENGTH', 10);
+define('MIN_CONTENT_LENGTH', 1);  // Changed from 10 to 1
 define('MAX_CONTENT_LENGTH', 50000);
 
 // Rate limiting settings
@@ -50,8 +50,8 @@ $expiration_options = [
 $error_messages = [
     'title_too_long' => 'العنوان طويل جدًا، يجب أن يكون أقل من 200 حرف',
     'author_too_long' => 'اسم الكاتب طويل جدًا، يجب أن يكون أقل من 100 حرف',
-    'content_too_short' => 'المحتوى قصير جدًا، يجب أن يكون 10 أحرف على الأقل',
-    'content_too_long' => 'المحتوى طويل جدًا، يجب أن يكون أقل من 50000 حرف',
+    'content_too_short' => 'المحتوى قصير جدًا، يجب أن يكون حرف واحد على الأقل.',
+    'content_too_long' => 'المحتوى طويل جدًا، الحد الأقصى هو ٥٠٬٠٠٠ حرف. للتجاوز يُرجى التواصل معنا على واتساب وشرح الاستخدام: +966556361500',
     'content_required' => 'المحتوى مطلوب',
     'rate_limit_hour' => 'لقد تجاوزت الحد المسموح به من المنشورات في الساعة، يرجى المحاولة لاحقًا',
     'rate_limit_day' => 'لقد تجاوزت الحد المسموح به من المنشورات في اليوم، يرجى المحاولة لاحقًا',
@@ -66,7 +66,7 @@ $error_messages = [
 
 // UI text in Arabic
 $ui_text = [
-    'site_title' => 'منصة النشر العربية',
+    'site_title' => 'منصة قطن | اكتب وانشر',
     'new_post' => 'منشور جديد',
     'title_placeholder' => 'العنوان (اختياري)',
     'author_placeholder' => 'الكاتب (اختياري)',

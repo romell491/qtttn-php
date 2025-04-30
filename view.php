@@ -51,7 +51,7 @@ $formattedContent = nl2brCustom($post['content']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo !empty($post['title']) ? htmlspecialchars($post['title']) : 'منصة النشر العربية'; ?></title>
+    <title><?php echo !empty($post['title']) ? htmlspecialchars($post['title']) : 'منصة قطن | اكتب وانشر'; ?></title>
     <!-- IBM Plex Sans Arabic font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -149,13 +149,25 @@ $formattedContent = nl2brCustom($post['content']);
             display: none;
         }
         
-        footer {
+        #sponsor-footer {
             text-align: center;
             padding: 2rem 1rem;
             color: #999;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             border-top: 1px solid #f0f0f0;
             margin-top: 3rem;
+            line-height: 1.8;
+        }
+        
+        #sponsor-links a {
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        #sponsor-links a:hover {
+            color: #000;
         }
         
         @media (max-width: 600px) {
@@ -206,23 +218,85 @@ $formattedContent = nl2brCustom($post['content']);
         </div>
     </div>
     
-    <footer>
-        <p>منصة النشر العربية</p>
-    </footer>
+    <p id="sponsor-footer">
+        الأداة مجانا بالكامل وبدون إعلانات مزعجة برعاية الرائعين:
+        <span id="sponsor-links"></span>
+    </p>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const sponsorKey = "kwakeb_sponsors";
+
+            // If saved in sessionStorage, use it
+            const cachedSponsors = sessionStorage.getItem(sponsorKey);
+            if (cachedSponsors) {
+                document.getElementById("sponsor-links").innerHTML = cachedSponsors;
+                return;
+            }
+
+            // Otherwise, generate new random sponsors
+            const baseSponsors = [
+                { name: " زد", url: "https://zid.link/4hTPipU" },
+                { name: "كناري", url: "https://knaree.com/" },
+                { name: "رمز", url: "https://rmmmz.com" },
+                { name: "خمسات", url: "https://khamsat.com/?r=56526" }
+            ];
+
+            const conflictGroup = [
+                { name: "وسيط شراء من النت", url: "https://wasetshera.com?myad=56761" },
+                { name: "الشاري", url: "https://alshary.com?myad=58260" }
+            ];
+
+            const selectedConflict = conflictGroup[Math.floor(Math.random() * conflictGroup.length)];
+            const shuffledBase = baseSponsors.sort(() => 0.5 - Math.random()).slice(0, 2);
+            const finalSponsors = [selectedConflict, ...shuffledBase].sort(() => 0.5 - Math.random());
+
+            const linksHtml = finalSponsors.map(s =>
+                `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.name}</a>`
+            ).join(" + ");
+
+            document.getElementById("sponsor-links").innerHTML = linksHtml;
+            sessionStorage.setItem(sponsorKey, linksHtml);
+        });
+    </script>
     
     <script>
         // Copy link functionality
         document.getElementById('copy-btn').addEventListener('click', function() {
             const currentUrl = window.location.href;
             
-            navigator.clipboard.writeText(currentUrl).then(() => {
-                const copySuccess = document.getElementById('copy-success');
-                copySuccess.style.display = 'inline';
+            // Create a temporary input element for iOS compatibility
+            const tempInput = document.createElement('input');
+            tempInput.value = currentUrl;
+            tempInput.style.position = 'absolute';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            
+            // Select and copy the text
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999); // For mobile
+            
+            try {
+                // Use execCommand for iOS compatibility
+                const successful = document.execCommand('copy');
                 
-                setTimeout(() => {
-                    copySuccess.style.display = 'none';
-                }, 3000);
-            });
+                // Show success message
+                if (successful) {
+                    const copySuccess = document.getElementById('copy-success');
+                    copySuccess.style.display = 'inline';
+                    
+                    setTimeout(() => {
+                        copySuccess.style.display = 'none';
+                    }, 3000);
+                } else {
+                    alert('يرجى نسخ الرابط يدويًا: اضغط مطولًا على النص وحدد "نسخ"');
+                }
+            } catch (err) {
+                alert('يرجى نسخ الرابط يدويًا: اضغط مطولًا على النص وحدد "نسخ"');
+            }
+            
+            // Clean up
+            document.body.removeChild(tempInput);
         });
     </script>
 </body>
