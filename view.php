@@ -24,7 +24,7 @@ if (!$post) {
     exit;
 }
 
-// Increment view count
+// Increment view count (still tracking but not displaying)
 incrementViewCount($urlId);
 
 // Format dates
@@ -85,10 +85,20 @@ $formattedContent = nl2brCustom($post['content']);
             margin-bottom: 0.5rem;
         }
         
+        .author {
+            margin-bottom: 0.5rem;
+        }
+        
+        .publish-date {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
         .content-meta {
             color: #666;
             font-size: 0.95rem;
             margin: 1.5rem 0;
+            display: none; /* Hidden for now */
         }
         
         .container {
@@ -149,25 +159,21 @@ $formattedContent = nl2brCustom($post['content']);
             display: none;
         }
         
-        #sponsor-footer {
+        .sbpc-footer-section {
+            margin: 10px 0;
+            padding: 0;
             text-align: center;
-            padding: 2rem 1rem;
-            color: #999;
-            font-size: 0.9rem;
-            border-top: 1px solid #f0f0f0;
-            margin-top: 3rem;
-            line-height: 1.8;
         }
-        
-        #sponsor-links a {
-            color: #666;
+        .sbpc-footer-section p {
+            margin: 5px 0;
+            line-height: 1.5;
+        }
+        .sbpc-footer-section a {
+            color: inherit;
             text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
         }
-        
-        #sponsor-links a:hover {
-            color: #000;
+        .sbpc-footer-section a:hover {
+            text-decoration: underline;
         }
         
         @media (max-width: 600px) {
@@ -187,17 +193,14 @@ $formattedContent = nl2brCustom($post['content']);
             <?php if (!empty($post['author'])): ?>
                 <div class="author"><?php echo htmlspecialchars($post['author']); ?></div>
             <?php endif; ?>
-        </header>
-        
-        <div class="content-meta">
-            <div>
-                <span>نُشر في: <?php echo $publishedDate; ?></span>
+            
+            <div class="publish-date">
+                نُشر في: <?php echo $publishedDate; ?>
                 <?php if ($post['expires_at']): ?>
-                    <span> • ينتهي في: <?php echo $expiresDate; ?></span>
+                    • ينتهي في: <?php echo $expiresDate; ?>
                 <?php endif; ?>
-                <span> • المشاهدات: <?php echo $post['views']; ?></span>
             </div>
-        </div>
+        </header>
         
         <div class="content-body">
             <?php echo $formattedContent; ?>
@@ -218,85 +221,98 @@ $formattedContent = nl2brCustom($post['content']);
         </div>
     </div>
     
-    <p id="sponsor-footer">
-        الأداة مجانا بالكامل وبدون إعلانات مزعجة برعاية الرائعين:
-        <span id="sponsor-links"></span>
-    </p>
-    
-    <script>
+    <div class="sbpc-footer-section">
+        <p id="sponsor-footer">الأداة مجانا بالكامل وبدون إعلانات مزعجة برعاية الرائعين: <span id="sponsor-links"></span></p>
+        <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const sponsorKey = "kwakeb_sponsors";
-
-            // If saved in sessionStorage, use it
-            const cachedSponsors = sessionStorage.getItem(sponsorKey);
-            if (cachedSponsors) {
-                document.getElementById("sponsor-links").innerHTML = cachedSponsors;
-                return;
-            }
-
-            // Otherwise, generate new random sponsors
             const baseSponsors = [
-                { name: " زد", url: "https://zid.link/4hTPipU" },
+                { name: "زد", url: "https://zid.link/4hTPipU" },
                 { name: "كناري", url: "https://knaree.com/" },
                 { name: "رمز", url: "https://rmmmz.com" },
-                { name: "خمسات", url: "https://khamsat.com/?r=56526" }
+                { name: "سيارة", url: "https://syarah.gotrackier.com/click?campaign_id=1&pub_id=2362" }
             ];
-
             const conflictGroup = [
-                { name: "وسيط شراء من النت", url: "https://wasetshera.com?myad=56761" },
+                { name: "وسيط شراء", url: "https://wasetshera.com?myad=56761" },
                 { name: "الشاري", url: "https://alshary.com?myad=58260" }
             ];
-
+            
+            // Select one random sponsor from conflict group
             const selectedConflict = conflictGroup[Math.floor(Math.random() * conflictGroup.length)];
+            
+            // Shuffle and select two random sponsors from base sponsors
             const shuffledBase = baseSponsors.sort(() => 0.5 - Math.random()).slice(0, 2);
+            
+            // Combine and shuffle final sponsor list
             const finalSponsors = [selectedConflict, ...shuffledBase].sort(() => 0.5 - Math.random());
-
-            const linksHtml = finalSponsors.map(s =>
-                `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.name}</a>`
-            ).join(" + ");
-
+            
+            // Create HTML for sponsor links
+            const linksHtml = finalSponsors.map(s => `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.name}</a>`).join(" + ");
+            
+            // Update the HTML
             document.getElementById("sponsor-links").innerHTML = linksHtml;
-            sessionStorage.setItem(sponsorKey, linksHtml);
         });
-    </script>
+        </script>
+    </div>
     
     <script>
+        // Detect iOS
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+        
         // Copy link functionality
         document.getElementById('copy-btn').addEventListener('click', function() {
             const currentUrl = window.location.href;
             
-            // Create a temporary input element for iOS compatibility
-            const tempInput = document.createElement('input');
-            tempInput.value = currentUrl;
-            tempInput.style.position = 'absolute';
-            tempInput.style.left = '-9999px';
-            document.body.appendChild(tempInput);
-            
-            // Select and copy the text
-            tempInput.select();
-            tempInput.setSelectionRange(0, 99999); // For mobile
-            
-            try {
-                // Use execCommand for iOS compatibility
-                const successful = document.execCommand('copy');
+            if (isIOS()) {
+                // iOS-compatible approach
+                const tempInput = document.createElement('input');
+                tempInput.value = currentUrl;
+                tempInput.style.position = 'absolute';
+                tempInput.style.left = '-9999px';
+                document.body.appendChild(tempInput);
                 
-                // Show success message
-                if (successful) {
-                    const copySuccess = document.getElementById('copy-success');
-                    copySuccess.style.display = 'inline';
+                // Select and copy the text
+                tempInput.select();
+                tempInput.setSelectionRange(0, 99999); // For mobile
+                
+                try {
+                    // Use execCommand for iOS compatibility
+                    const successful = document.execCommand('copy');
                     
-                    setTimeout(() => {
-                        copySuccess.style.display = 'none';
-                    }, 3000);
-                } else {
+                    // Show success message
+                    if (successful) {
+                        const copySuccess = document.getElementById('copy-success');
+                        copySuccess.style.display = 'inline';
+                        
+                        setTimeout(() => {
+                            copySuccess.style.display = 'none';
+                        }, 3000);
+                    } else {
+                        alert('يرجى نسخ الرابط يدويًا: اضغط مطولًا على النص وحدد "نسخ"');
+                    }
+                } catch (err) {
                     alert('يرجى نسخ الرابط يدويًا: اضغط مطولًا على النص وحدد "نسخ"');
                 }
-            } catch (err) {
-                alert('يرجى نسخ الرابط يدويًا: اضغط مطولًا على النص وحدد "نسخ"');
+                
+                // Clean up
+                document.body.removeChild(tempInput);
+            } else {
+                // Modern browsers
+                navigator.clipboard.writeText(currentUrl)
+                    .then(() => {
+                        const copySuccess = document.getElementById('copy-success');
+                        copySuccess.style.display = 'inline';
+                        
+                        setTimeout(() => {
+                            copySuccess.style.display = 'none';
+                        }, 3000);
+                    })
+                    .catch(err => {
+                        console.error('Could not copy text: ', err);
+                        alert('يرجى نسخ الرابط يدويًا: ' + currentUrl);
+                    });
             }
-            
-            // Clean up
-            document.body.removeChild(tempInput);
         });
     </script>
 </body>

@@ -15,24 +15,34 @@ $response = [
 
 // Function to check if edit is allowed
 function canEditPost($post, $token) {
+   // return true;
     // Check if post exists
     if (!$post) {
         return false;
     }
     
     // Check if edit token matches
-    if ($post['edit_token'] !== $token) {
-        return false;
-    }
+   if ($post['edit_token'] !== $token) {
+       return false;
+   }
+ //  echo $post['expires_at'];
+//   exit;
+//   return true;
     
     // Check if edit period has expired
-    $editExpires = new DateTime($post['edit_expires_at']);
+    if($post['expires_at'] != ''){
+    $editExpires = new DateTime($post['expires_at']);
     $now = new DateTime();
     
-    if ($now > $editExpires) {
-        return false;
-    }
     
+    $editExpires = strtotime($editExpires->format('Y-m-d H:i:s'));
+    $now = strtotime($now->format('Y-m-d H:i:s')); 
+    
+    
+   if ($now > $editExpires) {
+        return false;
+   }
+    }  
     return true;
 }
 
@@ -294,25 +304,27 @@ $minutesLeft = ($timeLeft->h * 60) + $timeLeft->i;
             margin-top: 0.5rem;
         }
         
-        #sponsor-footer {
+        .ios-notice {
+            font-size: 0.8rem;
+            color: #e74c3c;
+            margin-top: 0.5rem;
+        }
+        
+        .sbpc-footer-section {
+            margin: 10px 0;
+            padding: 0;
             text-align: center;
-            padding: 2rem 1rem;
-            color: #999;
-            font-size: 0.9rem;
-            border-top: 1px solid #f0f0f0;
-            margin-top: 3rem;
-            line-height: 1.8;
         }
-        
-        #sponsor-links a {
-            color: #666;
+        .sbpc-footer-section p {
+            margin: 5px 0;
+            line-height: 1.5;
+        }
+        .sbpc-footer-section a {
+            color: inherit;
             text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
         }
-        
-        #sponsor-links a:hover {
-            color: #000;
+        .sbpc-footer-section a:hover {
+            text-decoration: underline;
         }
         
         @media (max-width: 600px) {
@@ -365,49 +377,45 @@ $minutesLeft = ($timeLeft->h * 60) + $timeLeft->i;
         </div>
     </div>
     
-    <p id="sponsor-footer">
-        الأداة مجانا بالكامل وبدون إعلانات مزعجة برعاية الرائعين:
-        <span id="sponsor-links"></span>
-    </p>
-
-    <script>
+    <div class="sbpc-footer-section">
+        <p id="sponsor-footer">الأداة مجانا بالكامل وبدون إعلانات مزعجة برعاية الرائعين: <span id="sponsor-links"></span></p>
+        <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const sponsorKey = "kwakeb_sponsors";
-
-            // If saved in sessionStorage, use it
-            const cachedSponsors = sessionStorage.getItem(sponsorKey);
-            if (cachedSponsors) {
-                document.getElementById("sponsor-links").innerHTML = cachedSponsors;
-                return;
-            }
-
-            // Otherwise, generate new random sponsors
             const baseSponsors = [
-                { name: " زد", url: "https://zid.link/4hTPipU" },
+                { name: "زد", url: "https://zid.link/4hTPipU" },
                 { name: "كناري", url: "https://knaree.com/" },
                 { name: "رمز", url: "https://rmmmz.com" },
-                { name: "خمسات", url: "https://khamsat.com/?r=56526" }
+                { name: "سيارة", url: "https://syarah.gotrackier.com/click?campaign_id=1&pub_id=2362" }
             ];
-
             const conflictGroup = [
-                { name: "وسيط شراء من النت", url: "https://wasetshera.com?myad=56761" },
+                { name: "وسيط شراء", url: "https://wasetshera.com?myad=56761" },
                 { name: "الشاري", url: "https://alshary.com?myad=58260" }
             ];
-
+            
+            // Select one random sponsor from conflict group
             const selectedConflict = conflictGroup[Math.floor(Math.random() * conflictGroup.length)];
+            
+            // Shuffle and select two random sponsors from base sponsors
             const shuffledBase = baseSponsors.sort(() => 0.5 - Math.random()).slice(0, 2);
+            
+            // Combine and shuffle final sponsor list
             const finalSponsors = [selectedConflict, ...shuffledBase].sort(() => 0.5 - Math.random());
-
-            const linksHtml = finalSponsors.map(s =>
-                `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.name}</a>`
-            ).join(" + ");
-
+            
+            // Create HTML for sponsor links
+            const linksHtml = finalSponsors.map(s => `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.name}</a>`).join(" + ");
+            
+            // Update the HTML
             document.getElementById("sponsor-links").innerHTML = linksHtml;
-            sessionStorage.setItem(sponsorKey, linksHtml);
         });
-    </script>
+        </script>
+    </div>
     
     <script>
+        // Detect iOS
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+        
         // Get CSRF token
         fetch('get_token.php')
             .then(response => response.json())
@@ -457,30 +465,34 @@ $minutesLeft = ($timeLeft->h * 60) + $timeLeft->i;
                     const successMessage = document.getElementById('success-message');
                     successMessage.style.display = 'block';
                     
-                    // Scroll to top to show success message
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Different behavior based on device type
+                    const isIOSDevice = isIOS();
                     
-                    // Create a URL display for redirection
-                    if (!document.getElementById('url-container')) {
-                        const urlContainer = document.createElement('div');
-                        urlContainer.id = 'url-container';
-                        urlContainer.style.marginTop = '10px';
-                        
-                        urlContainer.innerHTML = `
-                            <button id="visit-page" style="background: #000; color: white; border: none; padding: 8px 15px; margin-top: 10px; width: 100%;">الانتقال للصفحة</button>
-                        `;
-                        
-                        successMessage.appendChild(urlContainer);
-                        
-                        document.getElementById('visit-page').addEventListener('click', function() {
+                    if (isIOSDevice) {
+                        // For iOS - show manual navigation option
+                        if (!document.getElementById('ios-navigation')) {
+                            const iosNotice = document.createElement('div');
+                            iosNotice.id = 'ios-navigation';
+                            iosNotice.innerHTML = `
+                               <div class="ios-notice">على أجهزة آيفون، لا يمكن إعادة التوجيه تلقائيًا بسبب قيود المتصفح. يُرجى الضغط على الزر للمتابعة.</div>
+                                <button id="visit-page" style="background: #000; color: white; border: none; padding: 8px 15px; margin-top: 10px; width: 100%;">الانتقال للصفحة</button>
+                            `;
+                            
+                            successMessage.appendChild(iosNotice);
+                            
+                            document.getElementById('visit-page').addEventListener('click', function() {
+                                window.location.href = data.url;
+                            });
+                        }
+                    } else {
+                        // For non-iOS - redirect automatically
+                        setTimeout(() => {
                             window.location.href = data.url;
-                        });
+                        }, 2000);
                     }
                     
-                    // Redirect after 2 seconds
-                    setTimeout(() => {
-                        window.location.href = data.url;
-                    }, 2000);
+                    // Scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
                     // Show error messages
                     if (data.errors.title) {
