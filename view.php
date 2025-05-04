@@ -43,6 +43,18 @@ if (isset($_SESSION['edit_tokens'][$urlId])) {
     }
 }
 
+// Check if sponsor footer should be shown
+// Show only if post is older than 2 hours AND viewer is not the author
+$showSponsorFooter = false;
+$currentIp = getClientIp();
+$postIp = $post['ip_address'];
+$postTime = strtotime($post['created_at']);
+$twoHoursAgo = time() - (2 * 60 * 60); // 2 hours in seconds
+
+if ($postTime < $twoHoursAgo && $currentIp !== $postIp) {
+    $showSponsorFooter = true;
+}
+
 // Format content
 $formattedContent = nl2brCustom($post['content']);
 ?>
@@ -221,6 +233,7 @@ $formattedContent = nl2brCustom($post['content']);
         </div>
     </div>
     
+    <?php if ($showSponsorFooter): ?>
     <div class="sbpc-footer-section">
         <p id="sponsor-footer">الأداة مجانا بالكامل وبدون إعلانات مزعجة برعاية الرائعين: <span id="sponsor-links"></span></p>
         <script>
@@ -253,6 +266,7 @@ $formattedContent = nl2brCustom($post['content']);
         });
         </script>
     </div>
+    <?php endif; ?>
     
     <script>
         // Detect iOS

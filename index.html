@@ -30,6 +30,7 @@
             text-align: center;
             padding: 2rem 1rem;
             border-bottom: 1px solid #f0f0f0;
+            position: relative;
         }
         
         h1 {
@@ -206,26 +207,81 @@
             margin-top: 0.5rem;
         }
         
-        .sbpc-footer-section {
-            margin: 10px 0;
-            padding: 0;
-            text-align: center;
+        /* Info icon and tooltip styles */
+        .info-tooltip-container {
+          position: absolute;
+          top: 1rem;
+          left: 1rem;
+          display: inline-block;
         }
-        .sbpc-footer-section p {
-            margin: 5px 0;
-            line-height: 1.5;
+
+        .info-icon {
+          cursor: pointer;
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          background: white;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .sbpc-footer-section a {
-            color: inherit;
-            text-decoration: none;
+
+        .info-tooltip {
+          visibility: hidden;
+          opacity: 0;
+          width: 300px;
+          background-color: white;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+          border-radius: 8px;
+          padding: 15px;
+          position: absolute;
+          top: 40px;
+          left: 0;
+          transition: opacity 0.3s, visibility 0.3s;
+          z-index: 100;
+          font-family: 'IBM Plex Sans Arabic', sans-serif;
+          text-align: right;
+          direction: rtl;
         }
-        .sbpc-footer-section a:hover {
-            text-decoration: underline;
+
+        .info-icon:hover + .info-tooltip,
+        .info-tooltip:hover {
+          visibility: visible;
+          opacity: 1;
+        }
+
+        .tooltip-header {
+          font-weight: 600;
+          margin-bottom: 10px;
+          padding-bottom: 5px;
+          border-bottom: 1px solid #eee;
+        }
+
+        .tooltip-content p {
+          margin-bottom: 10px;
+          font-size: 0.9rem;
+          line-height: 1.4;
+        }
+
+        .tooltip-content ul {
+          padding-right: 20px;
+          margin-bottom: 10px;
+        }
+
+        .tooltip-content li {
+          font-size: 0.9rem;
+          margin-bottom: 5px;
         }
         
         @media (max-width: 600px) {
             .container {
                 padding: 1rem;
+            }
+            
+            .info-tooltip {
+                width: 250px;
+                left: -110px;
             }
         }
     </style>
@@ -233,6 +289,31 @@
 <body>
     <header>
         <h1>منصة قطن | اكتب وانشر</h1>
+        <div class="info-tooltip-container">
+            <div class="info-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+            </div>
+            <div class="info-tooltip">
+                <div class="tooltip-header">منصة قطن | اكتب وانشر</div>
+                <div class="tooltip-content">
+                    <p>منصة بسيطة تتيح لك كتابة ونشر المحتوى بسرعة وسهولة دون الحاجة للتسجيل.</p>
+                    
+                    <p><strong>الميزات الرئيسية:</strong></p>
+                    <ul>
+                        <li>نشر محتوى نصي بسرعة وبدون حساب</li>
+                        <li>إمكانية تعديل المحتوى لمدة محدودة بعد النشر</li>
+                        <li>مشاركة المحتوى عبر رابط مباشر</li>
+                    </ul>
+                    
+                    <p><strong>الإبلاغ عن محتوى:</strong><br>
+                    للإبلاغ عن محتوى مخالف أو طلب إزالة محتوى، يرجى التواصل معنا على البريد الإلكتروني: writing@inboxeen.com</p>
+                </div>
+            </div>
+        </div>
     </header>
     
     <div class="container">
@@ -280,40 +361,19 @@
         </div>
     </div>
     
-    <div class="sbpc-footer-section">
-        <p id="sponsor-footer">الأداة مجانا بالكامل وبدون إعلانات مزعجة برعاية الرائعين: <span id="sponsor-links"></span></p>
-        <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const baseSponsors = [
-                { name: "زد", url: "https://zid.link/4hTPipU" },
-                { name: "كناري", url: "https://knaree.com/" },
-                { name: "رمز", url: "https://rmmmz.com" },
-                { name: "سيارة", url: "https://syarah.gotrackier.com/click?campaign_id=1&pub_id=2362" }
-            ];
-            const conflictGroup = [
-                { name: "وسيط شراء", url: "https://wasetshera.com?myad=56761" },
-                { name: "الشاري", url: "https://alshary.com?myad=58260" }
-            ];
-            
-            // Select one random sponsor from conflict group
-            const selectedConflict = conflictGroup[Math.floor(Math.random() * conflictGroup.length)];
-            
-            // Shuffle and select two random sponsors from base sponsors
-            const shuffledBase = baseSponsors.sort(() => 0.5 - Math.random()).slice(0, 2);
-            
-            // Combine and shuffle final sponsor list
-            const finalSponsors = [selectedConflict, ...shuffledBase].sort(() => 0.5 - Math.random());
-            
-            // Create HTML for sponsor links
-            const linksHtml = finalSponsors.map(s => `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.name}</a>`).join(" + ");
-            
-            // Update the HTML
-            document.getElementById("sponsor-links").innerHTML = linksHtml;
-        });
-        </script>
-    </div>
-    
     <script>
+        // Run this when DOM content is loaded
+        document.addEventListener("DOMContentLoaded", function() {
+            // First-time visitor detection
+            if (!localStorage.getItem('qtttn_visited')) {
+                // User hasn't visited before, store the flag
+                localStorage.setItem('qtttn_visited', 'true');
+                
+                // You could add additional logic here to highlight the info icon
+                // or automatically display the tooltip for first-time visitors
+            }
+        });
+        
         // Device detection function
         function isIOS() {
             return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -372,7 +432,7 @@
             }
             
             if (content.length > 50000) {
-contentError.textContent = 'المحتوى طويل جدًا (الحد الأقصى ٥٠٬٠٠٠ حرف). لتجاوز الحد، يُرجى التواصل معنا عبر واتساب وشرح سبب الاستخدام. قد يتم منحك استثناء من الحد: 00966556361500';
+                contentError.textContent = 'المحتوى طويل جدًا (الحد الأقصى ٥٠٬٠٠٠ حرف). لتجاوز الحد، يُرجى التواصل معنا عبر واتساب وشرح سبب الاستخدام. قد يتم منحك استثناء من الحد: 00966556361500';
                 return;
             }
             

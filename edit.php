@@ -310,23 +310,6 @@ $minutesLeft = ($timeLeft->h * 60) + $timeLeft->i;
             margin-top: 0.5rem;
         }
         
-        .sbpc-footer-section {
-            margin: 10px 0;
-            padding: 0;
-            text-align: center;
-        }
-        .sbpc-footer-section p {
-            margin: 5px 0;
-            line-height: 1.5;
-        }
-        .sbpc-footer-section a {
-            color: inherit;
-            text-decoration: none;
-        }
-        .sbpc-footer-section a:hover {
-            text-decoration: underline;
-        }
-        
         @media (max-width: 600px) {
             .container {
                 padding: 1rem;
@@ -375,39 +358,6 @@ $minutesLeft = ($timeLeft->h * 60) + $timeLeft->i;
                 </div>
             </form>
         </div>
-    </div>
-    
-    <div class="sbpc-footer-section">
-        <p id="sponsor-footer">الأداة مجانا بالكامل وبدون إعلانات مزعجة برعاية الرائعين: <span id="sponsor-links"></span></p>
-        <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const baseSponsors = [
-                { name: "زد", url: "https://zid.link/4hTPipU" },
-                { name: "كناري", url: "https://knaree.com/" },
-                { name: "رمز", url: "https://rmmmz.com" },
-                { name: "سيارة", url: "https://syarah.gotrackier.com/click?campaign_id=1&pub_id=2362" }
-            ];
-            const conflictGroup = [
-                { name: "وسيط شراء", url: "https://wasetshera.com?myad=56761" },
-                { name: "الشاري", url: "https://alshary.com?myad=58260" }
-            ];
-            
-            // Select one random sponsor from conflict group
-            const selectedConflict = conflictGroup[Math.floor(Math.random() * conflictGroup.length)];
-            
-            // Shuffle and select two random sponsors from base sponsors
-            const shuffledBase = baseSponsors.sort(() => 0.5 - Math.random()).slice(0, 2);
-            
-            // Combine and shuffle final sponsor list
-            const finalSponsors = [selectedConflict, ...shuffledBase].sort(() => 0.5 - Math.random());
-            
-            // Create HTML for sponsor links
-            const linksHtml = finalSponsors.map(s => `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.name}</a>`).join(" + ");
-            
-            // Update the HTML
-            document.getElementById("sponsor-links").innerHTML = linksHtml;
-        });
-        </script>
     </div>
     
     <script>
